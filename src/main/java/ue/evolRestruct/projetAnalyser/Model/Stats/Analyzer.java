@@ -37,8 +37,8 @@ public class Analyzer {
 
 	public static void main(String[] args) {
 		try {
-			Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
-			//Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projetAnalyser\\src\\main\\java\\ue\\evolRestruct\\projetAnalyser\\Model\\Visitor");
+			//Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
+			Analyzer s = new Analyzer("./");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -66,7 +66,7 @@ public class Analyzer {
 				currentPack = root;				
 			}
 			
-			TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor(parse);
+			TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor(parse, currentPack);
 			parse.accept(typeVisitor);
 			for(ClassAnalyzer fs : typeVisitor.classList) {
 				currentPack.addFileSystem(fs);
@@ -76,6 +76,19 @@ public class Analyzer {
 		System.out.println(root.toString());
 		System.out.println("Nombre de classes : " + StatisticsAnalyzer.numberOfClasses(root));
 		System.out.println("Nombre de lignes de code : " + StatisticsAnalyzer.numberOfLinesOfCode(root));
+		System.out.println("Nombre de méthodes : " + StatisticsAnalyzer.numberOfMethods(root));
+		System.out.println("Nombre de packages : " + StatisticsAnalyzer.numberOfPackages(root));
+		System.out.println("Nombre moyen de méthodes par classe : " + StatisticsAnalyzer.averageNumberOfMethodsByClass(root));
+		System.out.println("Nombre moyen de lignes de code par méthode : " + StatisticsAnalyzer.averageNumberOfLinesOfCodeByMethod(root));
+		System.out.println("Nombre moyen de d'attributs par classe : " + StatisticsAnalyzer.averageNumberOfFieldsByClass(root));
+		System.out.println("Les 10% des classes qui possèdent le plus grand nombre de méthodes : " + StatisticsAnalyzer.biggestClassesByNumberOfMethods(root, 10));
+		System.out.println("Les 10% des classes qui possèdent le plus grand nombre d'attributs : " + StatisticsAnalyzer.biggestClassesByNumberOfFields(root, 10));
+		System.out.println("Les classes qui font partie en même temps des deux catégories précédentes : " + StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(root, 10));
+		int X = 3;
+		System.out.println("Les classes qui possèdent plus de X=" + X + " méthodes : " + StatisticsAnalyzer.classesWithMoreThenXMethods(root, X));
+		System.out.println("Les 10% des méthdoes qui possèdent le plus grand nombre de lignes de code : " + StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(root, 10));
+		System.out.println("Nombre maximum de paramètres : " + StatisticsAnalyzer.maximumNumberOfParameters(root));		
+		
 
 	}
 	

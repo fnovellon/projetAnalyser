@@ -12,20 +12,22 @@ public class ClassAnalyzer implements ElementAnalyzer {
 	
 	private TypeDeclaration node;
 	private CompilationUnit parse;
+	private PackageAnalyzer parent;
 	
 	private ArrayList<FieldDeclaration> fields = new ArrayList<FieldDeclaration>();
 	private ArrayList<MethodAnalyzer> methods = new ArrayList<MethodAnalyzer>(); 
 	
 	
-	public ClassAnalyzer(TypeDeclaration node, CompilationUnit parse) {
+	public ClassAnalyzer(TypeDeclaration node, CompilationUnit parse, PackageAnalyzer parent) {
 		this.node = node;
 		this.parse = parse;
+		this.setParent(parent);
 		
 		for(FieldDeclaration field : node.getFields()) {
 			fields.add(field);
 		}
 		for(MethodDeclaration method : node.getMethods()) {
-			methods.add(new MethodAnalyzer(method, parse));
+			methods.add(new MethodAnalyzer(method, parse, this));
 		}
 	}
 
@@ -69,7 +71,7 @@ public class ClassAnalyzer implements ElementAnalyzer {
 	}
 	
 	public String toString() {
-		return getName() + " : " + this.getNumberOfLines() + "\n";
+		return getName() + " in package " + this.getParent().getName();
 	}
 	
 	
@@ -111,6 +113,16 @@ public class ClassAnalyzer implements ElementAnalyzer {
 
 	public void setMethods(ArrayList<MethodAnalyzer> methods) {
 		this.methods = methods;
+	}
+
+
+	public PackageAnalyzer getParent() {
+		return parent;
+	}
+
+
+	public void setParent(PackageAnalyzer parent) {
+		this.parent = parent;
 	}
 
 
