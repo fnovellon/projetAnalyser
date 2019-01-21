@@ -3,42 +3,31 @@ package ue.evolRestruct.projetAnalyser.Model.Stats;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 
-import ue.evolRestruct.projetAnalyser.Model.FileSystem.ClassStats;
-import ue.evolRestruct.projetAnalyser.Model.FileSystem.PackageStats;
-import ue.evolRestruct.projetAnalyser.Model.Visitor.FieldDeclarationVisitor;
-import ue.evolRestruct.projetAnalyser.Model.Visitor.MethodDeclarationVisitor;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ElementAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.PackageDeclarationVisitor;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.TypeDeclarationVisitor;
 
-public class StatAnalyser {
+public class Analyzer {
 
 	private String folderPath;
 	private File folder;
 	private ArrayList<File> javaFiles;
 	private final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_181\\lib\\rt.jar";
 
-	private List<TypeDeclaration> types;
-	private HashMap<String, PackageDeclaration> packages;
-	private List<MethodDeclaration> methods;
-	private List<FieldDeclaration> fields;
 
-	public StatAnalyser(String folderPath) throws IOException {
+	public Analyzer(String folderPath) throws IOException {
 		this.folderPath = folderPath;
 		this.folder = new File(folderPath);
 		this.javaFiles = listJavaFilesForFolder(folder);
@@ -48,34 +37,27 @@ public class StatAnalyser {
 
 	public static void main(String[] args) {
 		try {
-			StatAnalyser s = new StatAnalyser("./");
+			Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
+			//Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projetAnalyser\\src\\main\\java\\ue\\evolRestruct\\projetAnalyser\\Model\\Visitor");
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private void parseCallVisitors() throws IOException {
-		this.types = new ArrayList<TypeDeclaration>();
-		this.packages = new HashMap<String, PackageDeclaration>();
-		this.methods = new ArrayList<MethodDeclaration>();
-		this.fields = new ArrayList<FieldDeclaration>();
 
-		PackageStats root = new PackageStats("root");
+		PackageAnalyzer root = new PackageAnalyzer("root");
 
 		for (File fileEntry : this.javaFiles) {
-
-			String content = FileUtils.readFileToString(fileEntry);
-			CompilationUnit parse = parse(content.toCharArray());
-			//System.out.println(fileEntry.getName());
+			CompilationUnit parse = parse(FileUtils.readFileToString(fileEntry, (String) null).toCharArray());
 
 
 			PackageDeclarationVisitor packageVisitor = new PackageDeclarationVisitor();
 			parse.accept(packageVisitor);
 			PackageDeclaration packdecl = packageVisitor.getPackages();
 
-			PackageStats currentPack;
+			PackageAnalyzer currentPack;
 			if(packdecl != null) {
 				Name packageName = packdecl.getName();
 				currentPack = root.mkpack(packageName.toString());
@@ -83,31 +65,23 @@ public class StatAnalyser {
 			else {
 				currentPack = root;				
 			}
-
+			
 			TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor(parse);
 			parse.accept(typeVisitor);
-
-			MethodDeclarationVisitor methodVisitor = new MethodDeclarationVisitor(parse);
-			parse.accept(methodVisitor);
-
-			FieldDeclarationVisitor fieldVisitor = new FieldDeclarationVisitor();
-			parse.accept(fieldVisitor);
-
-			ClassStats nClass = new ClassStats(fileEntry.getName());
-
-			nClass.setTypeDeclarationArray(typeVisitor.getTypes());
-			nClass.setMethodDeclarationArray(methodVisitor.getMethods());
-			nClass.setFieldDeclarationArray(fieldVisitor.getFields());
-
-			currentPack.addFileSystem(nClass);
-
-			//parse.getLineNumber(node.getStartPosition() + node.getLength()) - parse.getLineNumber(node.getStartPosition());
+			for(ClassAnalyzer fs : typeVisitor.classList) {
+				currentPack.addFileSystem(fs);
+			}
 
 		}	
 		System.out.println(root.toString());
+		System.out.println("Nombre de classes : " + StatisticsAnalyzer.numberOfClasses(root));
+		System.out.println("Nombre de lignes de code : " + StatisticsAnalyzer.numberOfLinesOfCode(root));
 
 	}
-
+	
+	
+	
+	
 	private ArrayList<File> listJavaFilesForFolder(final File folder) {
 		ArrayList<File> javaFiles = new ArrayList<File>();
 		for (File fileEntry : folder.listFiles()) {
@@ -143,43 +117,7 @@ public class StatAnalyser {
 		return (CompilationUnit) parser.createAST(null); // create and parse
 	}
 
-	public int getNumberOfClasses() {
-		return this.types.size();
-	}
 
-	public int getNumberOfMethods() {
-		return this.methods.size();
-	}
-
-	public int getNumberOfPackages() {
-		return this.packages.size();
-	}
-
-	public int getNumberOfFields() {
-		return this.fields.size();
-	}
-
-	public double getAverageMethodsPerClass() {
-		return (this.getNumberOfMethods() / this.getNumberOfClasses());
-	}
-
-	public double getAverageFieldsPerClass() {
-		return (this.getNumberOfFields() / this.getNumberOfClasses());
-	}
-
-	private int getNumberOfLine(ASTNode node) {
-		return 0;
-	}
-
-	public double getAverageNumberOfLinesPerMethod() {
-		int sum = 0;
-		for(MethodDeclaration m : this.methods) {
-			//t lines = 
-		}
-
-
-		return 0;
-	}
 
 
 

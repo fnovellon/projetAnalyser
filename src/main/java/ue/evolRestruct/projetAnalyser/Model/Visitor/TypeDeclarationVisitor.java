@@ -1,36 +1,27 @@
 package ue.evolRestruct.projetAnalyser.Model.Visitor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
+
 public class TypeDeclarationVisitor extends ASTVisitor {
-	private ArrayList<TypeDeclaration> types = new ArrayList<TypeDeclaration>();
-	private int linesCount = 0;
+	public ArrayList<ClassAnalyzer> classList = new ArrayList<ClassAnalyzer>();
 	private CompilationUnit parse;
-	
+
 	public TypeDeclarationVisitor(CompilationUnit parse) {
 		this.parse = parse;
 	}
-	
+
 	public boolean visit(TypeDeclaration node) {
-		//System.out.println(node.getName().toString());
-		if( !node.isInterface() ) {
-			types.add(node);
-			linesCount = parse.getLineNumber(node.getStartPosition() + node.getLength()) - parse.getLineNumber(node.getStartPosition());
-		}
+		ClassAnalyzer nClass = new ClassAnalyzer(node, parse);
+
+		this.classList.add(nClass);
+		
 		return super.visit(node);
 	}
-	
-	public ArrayList<TypeDeclaration> getTypes() {
-		return types;
-	}
-	
-	public int getLinesCount() {
-		return this.linesCount;
-	}
-	
+
 }
