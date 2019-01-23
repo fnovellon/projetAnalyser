@@ -44,8 +44,8 @@ public class Analyzer {
 			
 			//printStats(project);
 			//GraphAnalyzer.buildGeneralGraph(project).display();
-			GraphAnalyzer.buildPonderalGraph(project).display();
-			//GraphAnalyzer.buildDendogramme(project);
+			//GraphAnalyzer.buildPonderalGraph(project).display();
+			GraphAnalyzer.buildDendogramme(project);
 			
 			
 			
