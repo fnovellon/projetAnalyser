@@ -55,7 +55,7 @@ public class Analyzer {
 		}
 	}
 
-	private PackageAnalyzer parseCallVisitors() throws IOException {
+	public PackageAnalyzer parseCallVisitors() throws IOException {
 
 		PackageAnalyzer root = new PackageAnalyzer("root", null);
 
