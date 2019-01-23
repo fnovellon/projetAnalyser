@@ -10,6 +10,19 @@ import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 
 public class StatisticsAnalyzer{
 	
+	public  int numberOfClassesd(PackageAnalyzer packageAnalyzer) {
+		int sum = 0;
+		for(ElementAnalyzer e : packageAnalyzer.getContent()){
+			if(e.isPackage()) {
+				sum += numberOfClasses((PackageAnalyzer) e);
+			}
+			else {
+				sum++;
+			}
+		}
+		return sum;
+	}
+	
 	public static int numberOfClasses(PackageAnalyzer packageAnalyzer) {
 		int sum = 0;
 		for(ElementAnalyzer e : packageAnalyzer.getContent()){
@@ -82,7 +95,7 @@ public class StatisticsAnalyzer{
 		return (methodLOC / methodCount);
 	}
 	
-	private static int numberOfFields(PackageAnalyzer packageAnalyzer) {
+	public static int numberOfFields(PackageAnalyzer packageAnalyzer) {
 		int sum = 0;
 		for(ElementAnalyzer e : packageAnalyzer.getContent()){
 			if(e.isPackage()) {
@@ -103,7 +116,7 @@ public class StatisticsAnalyzer{
 		return (fieldCount / classCount);
 	}
 	
-	private static ArrayList<ClassAnalyzer> getAllClasses(PackageAnalyzer packageAnalyzer) {
+	public static ArrayList<ClassAnalyzer> getAllClasses(PackageAnalyzer packageAnalyzer) {
 		ArrayList<ClassAnalyzer> classList = new ArrayList<ClassAnalyzer>();
 		for(ElementAnalyzer e : packageAnalyzer.getContent()){
 			if(e.isPackage()) {

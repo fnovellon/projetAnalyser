@@ -7,10 +7,12 @@ public class PackageAnalyzer implements ElementAnalyzer {
 	private ArrayList<ElementAnalyzer> content;
 	
 	private String name;
+	private PackageAnalyzer parent;
 	
-	public PackageAnalyzer(String name) {
+	public PackageAnalyzer(String name, PackageAnalyzer parent) {
 		this();
 		this.name = name;
+		this.parent = parent;
 	}
 	
 	private PackageAnalyzer() {
@@ -19,7 +21,10 @@ public class PackageAnalyzer implements ElementAnalyzer {
 
 	@Override
 	public String getName() {
-		return this.name;
+		if(parent.getParent() == null) {
+			return this.name;			
+		}
+		return this.parent.getName() + "." + this.name;
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public class PackageAnalyzer implements ElementAnalyzer {
 			}
 		}
 		else {
-			PackageAnalyzer npack = new PackageAnalyzer(split[0]);
+			PackageAnalyzer npack = new PackageAnalyzer(split[0], this);
 			this.content.add(npack);
 			if(split.length > 1) {
 				return npack.mkpack(split[1]);
@@ -102,6 +107,14 @@ public class PackageAnalyzer implements ElementAnalyzer {
 
 	public void setContent(ArrayList<ElementAnalyzer> content) {
 		this.content = content;
+	}
+
+	public PackageAnalyzer getParent() {
+		return parent;
+	}
+
+	public void setParent(PackageAnalyzer parent) {
+		this.parent = parent;
 	}
 
 

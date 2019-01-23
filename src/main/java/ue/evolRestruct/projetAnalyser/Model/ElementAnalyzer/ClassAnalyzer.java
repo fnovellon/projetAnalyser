@@ -48,6 +48,18 @@ public class ClassAnalyzer implements ElementAnalyzer {
 		return this.getTypeDeclarationName(node);
 	}
 	
+	public String getSimpleName() {
+		return node.getName().toString();
+	}
+	
+	public String getQualifiedName() {
+		String typeDeclarationName = this.getTypeDeclarationName(node);
+		String typeDeclarationNameWithoutEnd = typeDeclarationName.substring(0, typeDeclarationName.length()-6);
+		
+		
+		return this.getParent().getName()+"."+typeDeclarationNameWithoutEnd;
+	}
+	
 	@Override
 	public String toString(int tabNb) {
 		String buffer = "";

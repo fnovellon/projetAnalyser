@@ -37,17 +37,20 @@ public class Analyzer {
 
 	public static void main(String[] args) {
 		try {
-			//Analyzer s = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
-			Analyzer s = new Analyzer("./");
-
+			//Analyzer analyzer = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
+			Analyzer analyzer = new Analyzer("./");
+			PackageAnalyzer project = analyzer.parseCallVisitors();
+			GraphAnalyzer graph = new GraphAnalyzer(project);
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void parseCallVisitors() throws IOException {
+	private PackageAnalyzer parseCallVisitors() throws IOException {
 
-		PackageAnalyzer root = new PackageAnalyzer("root");
+		PackageAnalyzer root = new PackageAnalyzer("root", null);
 
 		for (File fileEntry : this.javaFiles) {
 			CompilationUnit parse = parse(FileUtils.readFileToString(fileEntry, (String) null).toCharArray());
@@ -68,11 +71,18 @@ public class Analyzer {
 			
 			TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor(parse, currentPack);
 			parse.accept(typeVisitor);
-			for(ClassAnalyzer fs : typeVisitor.classList) {
+			for(ClassAnalyzer fs : typeVisitor.getClassList()) {
 				currentPack.addFileSystem(fs);
 			}
 
+			
 		}	
+	
+		
+		return root;
+	}
+	
+	public void printStats(PackageAnalyzer root) {
 		System.out.println(root.toString());
 		System.out.println("Nombre de classes : " + StatisticsAnalyzer.numberOfClasses(root));
 		System.out.println("Nombre de lignes de code : " + StatisticsAnalyzer.numberOfLinesOfCode(root));
@@ -87,9 +97,7 @@ public class Analyzer {
 		int X = 3;
 		System.out.println("Les classes qui possèdent plus de X=" + X + " méthodes : " + StatisticsAnalyzer.classesWithMoreThenXMethods(root, X));
 		System.out.println("Les 10% des méthdoes qui possèdent le plus grand nombre de lignes de code : " + StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(root, 10));
-		System.out.println("Nombre maximum de paramètres : " + StatisticsAnalyzer.maximumNumberOfParameters(root));		
-		
-
+		System.out.println("Nombre maximum de paramètres : " + StatisticsAnalyzer.maximumNumberOfParameters(root));	
 	}
 	
 	
