@@ -11,11 +11,17 @@ import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.graphstream.graph.*;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer;
+import spoonCode.SpoonAnalyze;
 
 import java.io.File;
 
 public class MainFrameControler {
 
+	private String pathFolder = null;
+	private Graph spoonGraph = null;
+	
     @FXML // fx:id="ap"
     private AnchorPane ap; // Value injected by FXMLLoader
     
@@ -104,13 +110,24 @@ public class MainFrameControler {
     	     //No Directory selected
     	}else{
     	     System.out.println(selectedDirectory.getAbsolutePath());
-    	     projectDirectoryPath.setText(selectedDirectory.getAbsolutePath());
+    	     String path = selectedDirectory.getAbsolutePath();
+    	     this.pathFolder = path;
+    	     projectDirectoryPath.setText(this.pathFolder);
+    	     SpoonAnalyze.checkAllProject(this.pathFolder);
+    			
+    	     this.spoonGraph = GraphAnalyzer.buildPonderalGraph(SpoonAnalyze.pairArray);
+    	     
     	}
     }
 
     @FXML
     void triggerSpoonCoupling(ActionEvent event) {
     	System.out.println("triggerSpoonCoupling");
+    	if(this.spoonGraph != null) {
+
+    		this.spoonGraph.display();
+
+    	}
     }
 
 }

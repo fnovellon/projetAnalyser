@@ -59,15 +59,15 @@ public class SpoonAnalyze<T> {
 	public void analyze() {
 		for(CtType<?> ctType : factory.Type().getAll()) {
 			Collection<CtMethod<?>> methods = ctType.getMethods();
-			System.out.println("classe " + ctType.getQualifiedName() + " : ");
-			System.out.println("Liste des attibuts de la classe : " + ctType.getAllFields().toString());
-			System.out.println("-- méthode(s) déclarée(s) dans cette classe : ");
+			//System.out.println("classe " + ctType.getQualifiedName() + " : ");
+			//System.out.println("Liste des attibuts de la classe : " + ctType.getAllFields().toString());
+			//System.out.println("-- méthode(s) déclarée(s) dans cette classe : ");
 			for(CtMethod<?> m : methods){
-				System.out.println("---- " + m.getSimpleName());
+				//System.out.println("---- " + m.getSimpleName());
 				for(CtInvocation<?> methodInvocation : (List<CtInvocation>) Query.getElements(m, new TypeFilter<CtInvocation>(CtInvocation.class))){
 					if(methodInvocation != null && methodInvocation.getTarget() != null && methodInvocation.getTarget().getType() != null) {
 						if(!ctType.getQualifiedName().equals(methodInvocation.getTarget().getType().toString())){
-							System.out.println("------ méthode appelée : " + methodInvocation.getExecutable().getSimpleName() + " provenant de " + methodInvocation.getTarget().getType().toString());	
+							//System.out.println("------ méthode appelée : " + methodInvocation.getExecutable().getSimpleName() + " provenant de " + methodInvocation.getTarget().getType().toString());	
 							if(verifyIfOurClasses(methodInvocation.getTarget().getType().toString())) {
 								this.pairArray.addPair(ctType.getQualifiedName(), methodInvocation.getTarget().getType().toString());
 							}		
@@ -91,15 +91,15 @@ public class SpoonAnalyze<T> {
 		for(CtType<?> ctType : factory.Type().getAll()) {
 			allClasses.add(ctType.getQualifiedName());
 		}		
-		System.out.println("teeeest" + allClasses);
+		//System.out.println("teeeest" + allClasses);
 	}
 	
-	public static void checkAllProject() {
-		javaFiles = listJavaFilesForFolder(new File("./"));		
+	public static void checkAllProject(String path) {
+		javaFiles = listJavaFilesForFolder(new File(path));		
 		int cpt = 1;
 		for (File fileEntry : javaFiles) {
-			System.out.println("Fichier numéro " + cpt);
-			System.out.println(fileEntry.toString());
+			//System.out.println("Fichier numéro " + cpt);
+			//System.out.println(fileEntry.toString());
 			SpoonAnalyze<Void> spoon = new SpoonAnalyze<Void>(fileEntry.toString());
 			spoon.collectAllClasses();
 			spoon.analyze();
@@ -108,9 +108,14 @@ public class SpoonAnalyze<T> {
 	}
 		
 	public static void main(String args[]) {
-		checkAllProject();
+		checkAllProject("./");
 		
-		GraphAnalyzer.buildPonderalGraph(pairArray).display();
+		try{
+			GraphAnalyzer.buildPonderalGraph(pairArray).display();
+		}
+		catch (Exception e){
+			System.err.println(e);
+		}
 	}
 
 }
