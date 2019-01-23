@@ -194,19 +194,38 @@ public class GraphAnalyzer {
 	}
 	
 	public static void buildDendogramme(PairArray pairArray) {
+		Graph graph = buildPonderalGraph(pairArray);		
 		
-		while(!pairArray.isEmpty()) {
-			GraphPair p = pairArray.higherPair();
-			//GraphPair()
+		//while(!pairArray.isEmpty()) {
+		System.out.println(pairArray.getArray().size());
+			GraphPair maxPair = pairArray.higherPair();
+			String nNode = "(" + maxPair.getP1() + " + " + maxPair.getP2() + ")";
+//			System.out.println(nNode);
 			
+			ArrayList<GraphPair> list = new ArrayList<GraphPair>();
+			for (GraphPair pair : list) {
+				String nearString = "";
+	            if(pair.getP1().equals(maxPair.getP1())) {
+	            	nearString = pair.getP2();
+	            }
+	            else {
+	            	nearString = pair.getP1();
+	            }
+				pairArray.addPair(new GraphPair(nearString, nNode, pair.getValue()));
+			}
+
+	        
+	        pairArray.removePair(maxPair);
+	        
+			System.out.println(pairArray.getArray().size());
+	        
+			//GraphPair(p.getP1(), p.getP2(), p.getValue());
 			
-			
-			
-			
-			
-			
-			pairArray.removePair(p);
-		}
+			//pairArray.removePair(maxPair);
+		//}
+		
+
+			//GraphAnalyzer.buildPonderalGraph(pairArray).display();
 		
 	}
 	
@@ -240,6 +259,31 @@ public class GraphAnalyzer {
 			}
     		array.add(pair);
     		return this;
+    	}
+    	
+    	public PairArray addPair(GraphPair p) {
+    		for (GraphPair graphPair : array) {
+				if(graphPair.equals(p)) {
+					graphPair.setValue(graphPair.getValue()+p.getValue());
+					return this;
+				}
+			}
+    		array.add(p);
+    		return this;
+    	}
+
+    	public ArrayList<GraphPair> nearFrom(String s1, String s2){
+    		ArrayList<GraphPair> a = new ArrayList<GraphPair>();
+    		
+    		for (GraphPair pair : this.array) {
+				Boolean matchS1 = (pair.getP1().equals(s1) || pair.getP2().equals(s1));
+				Boolean matchS2 = (pair.getP1().equals(s2) || pair.getP2().equals(s2));
+				if(matchS1 ^ matchS2) {
+					a.add(pair);
+				}
+			}
+    		
+    		return a;    		
     	}
     	
     	public GraphPair find(String s1, String s2) {
@@ -281,10 +325,21 @@ public class GraphAnalyzer {
 		public PairArray removePair(GraphPair pair) {
 			GraphPair f = this.find(pair.getP1(), pair.getP2());
 			if(f != null) {
-				this.array.remove(f);
+				if(this.array.remove(f)) {
+					System.out.println("REMOVE");
+				}
+					
 			}
 			
 			return this;
+		}
+		
+		public int sumOfValue() {
+			int sum = 0;
+			for (GraphPair pair : array) {
+				sum += pair.getValue();
+			}
+			return sum;
 		}
     }
     
