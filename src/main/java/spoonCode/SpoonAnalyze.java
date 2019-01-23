@@ -31,10 +31,7 @@ public class SpoonAnalyze<T>{
 	
 	public SpoonAnalyze(String classFilePath, String className){	
 		Launcher launcher = new Launcher();
-		launcher.addInputResource(classFilePath);
-		Environment e = launcher.getEnvironment();
-		e.setCommentEnabled(true);
-		
+		launcher.addInputResource(classFilePath);		
 		launcher.buildModel();
 		factory = launcher.getFactory();
 	}
@@ -50,24 +47,14 @@ public class SpoonAnalyze<T>{
 				
 				for(CtInvocation<?> methodInvocation : (List<CtInvocation>) Query.getElements(m, new TypeFilter<CtInvocation>(CtInvocation.class))){
 					if(methodInvocation.getTarget().getType() != null)
-						if(isProjectClass(methodInvocation.getTarget().getType().toString()))
+						if(ctType.getQualifiedName().equals(methodInvocation.getTarget().getType().toString())){
 							System.out.println("------ méthode appelée : " + methodInvocation.getExecutable().getSimpleName() + " provenant de " + methodInvocation.getTarget().getType().toString());
+						}
 				}
 			}
 		}
 	}
-	
-	public boolean isProjectClass(String className)
-	{
-		for(CtType<?> ctType : factory.Type().getAll())
-		{
-			if(ctType.getQualifiedName().equals(className))
-				return true;
-		}
 		
-		return false;
-	}
-	
 	public static void main(String args[]) {
 		SpoonAnalyze<Void> spoon = new SpoonAnalyze<Void>("./src/main/java/ue/evolRestruct/projetAnalyser/Model/ElementAnalyzer/ClassAnalyzer.java", " ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer");
 		spoon.analyze();
