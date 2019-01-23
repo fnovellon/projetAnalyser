@@ -23,10 +23,22 @@ import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.GraphPair;
 
 public class GraphAnalyzer {
 
-		
-	public GraphAnalyzer() {		
-			
-	}
+    private static String style = 
+    		"node {" + 
+    		"	size: 10px, 10px;" + 
+    		"	shape: box;" + 
+    		"	fill-color: red;" + 
+    		"	stroke-mode: plain;" + 
+    		"	stroke-color: red;" + 
+    		"   z-index: 2;" +
+    		"   text-background-mode: plain;" +
+    		"   text-offset: 10px;"+
+    		"}" +
+    		"edge {" + 
+    		"	z-index: 1;" +	
+    		"   text-background-mode: plain;" +
+    		"   text-offset: 20px;"+
+    		"}";
 
 	
 	private static ClassAnalyzer findClass(ArrayList<ClassAnalyzer> list, String name) {
@@ -154,6 +166,11 @@ public class GraphAnalyzer {
 	}
 	
 	public static Graph buildPonderalGraph(PackageAnalyzer packageAnalyzer) {
+		return buildPonderalGraph(createPairArray(packageAnalyzer));
+	}
+	
+	
+	public static PairArray createPairArray(PackageAnalyzer packageAnalyzer){
 		PairArray pairArray = new PairArray();
 		
 		ArrayList<ClassAnalyzer> listOfClasses = StatisticsAnalyzer.getAllClasses(packageAnalyzer);
@@ -169,10 +186,29 @@ public class GraphAnalyzer {
         	pairArray.addPair(currentClass.getSimpleName(), className);
 		}
 		
-		return buildPonderalGraph(pairArray);
-	}
-
+		return pairArray;
+	}	
 	
+	public static void buildDendogramme(PackageAnalyzer packageAnalyzer) {
+		buildDendogramme(createPairArray(packageAnalyzer));
+	}
+	
+	public static void buildDendogramme(PairArray pairArray) {
+		
+		while(!pairArray.isEmpty()) {
+			GraphPair p = pairArray.higherPair();
+			//GraphPair()
+			
+			
+			
+			
+			
+			
+			
+			pairArray.removePair(p);
+		}
+		
+	}
 	
 
     public static void explore(Node source) {
@@ -189,22 +225,7 @@ public class GraphAnalyzer {
         try { Thread.sleep(1000); } catch (Exception e) {}
     }
 
-    private static String style = 
-    		"node {" + 
-    		"	size: 10px, 10px;" + 
-    		"	shape: box;" + 
-    		"	fill-color: red;" + 
-    		"	stroke-mode: plain;" + 
-    		"	stroke-color: red;" + 
-    		"   z-index: 2;" +
-    		"   text-background-mode: plain;" +
-    		"   text-offset: 10px;"+
-    		"}" +
-    		"edge {" + 
-    		"	z-index: 1;" +	
-    		"   text-background-mode: plain;" +
-    		"   text-offset: 20px;"+
-    		"}";
+
     
     public static class PairArray {
     	private ArrayList<GraphPair> array = new ArrayList<GraphPair>();
@@ -221,16 +242,49 @@ public class GraphAnalyzer {
     		return this;
     	}
     	
+    	public GraphPair find(String s1, String s2) {
+    		GraphPair pair = new GraphPair(s1, s2);
+    		for (GraphPair graphPair : array) {
+				if(graphPair.equals(pair)) {
+					return graphPair;
+				}
+			}
+    		return null;
+    	}
+    	
     	public String toString() {
     		String buffer = "";
-    		for (GraphPair graphPair : array) {
-    			buffer += "<" + graphPair.getP1() + ", " + graphPair.getP2() + "> : " + graphPair.getValue() + "\n";
+    		for (GraphPair pair : array) {
+    			buffer += pair + "\n";
 			}
     		return buffer;
     	}
 
 		public ArrayList<GraphPair> getArray() {
 			return array;
+		}
+		
+		public Boolean isEmpty() {
+			return this.array.isEmpty();
+		}
+		
+		public GraphPair higherPair() {
+			GraphPair max = null;
+			for (GraphPair pair : array) {
+				if(max == null || (pair.getValue() > max.getValue()) ) {
+					max = pair;
+				}
+			}
+			return max;
+		}
+		
+		public PairArray removePair(GraphPair pair) {
+			GraphPair f = this.find(pair.getP1(), pair.getP2());
+			if(f != null) {
+				this.array.remove(f);
+			}
+			
+			return this;
 		}
     }
     
@@ -241,9 +295,13 @@ public class GraphAnalyzer {
     	private Integer value;
     	
     	public GraphPair(String s1, String s2) {
+    		this(s1, s2, 1);
+    	}
+    	
+    	public GraphPair(String s1, String s2, Integer value) {
     		this.p1 = s1;
     		this.p2 = s2;
-    		this.value = 1;
+    		this.value = value;
     	}
     	
     	
@@ -251,6 +309,10 @@ public class GraphAnalyzer {
     		Boolean b1 = (this.p1.equals(pair.getP1()) && this.p2.equals(pair.getP2()));
     		Boolean b2 = (this.p1.equals(pair.getP2()) && this.p2.equals(pair.getP1()));
     		return (b1 || b2);
+    	}
+    	
+    	public String toString() {
+    		return "<" + this.getP1() + ", " + this.getP2() + "> : " + this.getValue();
     	}
 
 

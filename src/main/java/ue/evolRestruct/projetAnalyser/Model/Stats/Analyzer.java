@@ -42,10 +42,10 @@ public class Analyzer {
 			Analyzer analyzer = new Analyzer("./");
 			PackageAnalyzer project = analyzer.parseCallVisitors();
 			
+			//printStats(project);
 			//GraphAnalyzer.buildGeneralGraph(project).display();
-			printStats(project);
 			GraphAnalyzer.buildPonderalGraph(project).display();
-
+			//GraphAnalyzer.buildDendogramme(project);
 			
 			
 			
