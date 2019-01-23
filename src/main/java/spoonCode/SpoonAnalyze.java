@@ -53,7 +53,6 @@ public class SpoonAnalyze<T> {
 				javaFiles.add(fileEntry);
 			}
 		}
-
 		return javaFiles;
 	}
 	
@@ -61,20 +60,15 @@ public class SpoonAnalyze<T> {
 		for(CtType<?> ctType : factory.Type().getAll()) {
 			Collection<CtMethod<?>> methods = ctType.getMethods();
 			System.out.println("classe " + ctType.getQualifiedName() + " : ");
-			//System.out.println("Liste des attibuts de la classe : " + ctType.getAllFields().toString());
-			//System.out.println("-- méthode(s) déclarée(s) dans cette classe : ");
+			System.out.println("Liste des attibuts de la classe : " + ctType.getAllFields().toString());
+			System.out.println("-- méthode(s) déclarée(s) dans cette classe : ");
 			for(CtMethod<?> m : methods){
 				System.out.println("---- " + m.getSimpleName());
-				
 				for(CtInvocation<?> methodInvocation : (List<CtInvocation>) Query.getElements(m, new TypeFilter<CtInvocation>(CtInvocation.class))){
-					
 					if(methodInvocation != null && methodInvocation.getTarget() != null && methodInvocation.getTarget().getType() != null) {
-						
 						if(!ctType.getQualifiedName().equals(methodInvocation.getTarget().getType().toString())){
 							System.out.println("------ méthode appelée : " + methodInvocation.getExecutable().getSimpleName() + " provenant de " + methodInvocation.getTarget().getType().toString());	
 							if(verifyIfOurClasses(methodInvocation.getTarget().getType().toString())) {
-								//System.out.println("classe 1 = " +  ctType.getQualifiedName());	
-								//System.out.println("classe 2 = " +  methodInvocation.getTarget().getType().toString());	
 								this.pairArray.addPair(ctType.getQualifiedName(), methodInvocation.getTarget().getType().toString());
 							}		
 						}
@@ -96,9 +90,8 @@ public class SpoonAnalyze<T> {
 	public static void collectAllClasses() {
 		for(CtType<?> ctType : factory.Type().getAll()) {
 			allClasses.add(ctType.getQualifiedName());
-		}
-		System.out.println(allClasses);
-		
+		}		
+		System.out.println("teeeest" + allClasses);
 	}
 	
 	public static void checkAllProject() {
@@ -111,7 +104,6 @@ public class SpoonAnalyze<T> {
 			spoon.collectAllClasses();
 			spoon.analyze();
 			cpt++;
-			System.out.println("paaaaaaiiiiir" + pairArray);
 		}
 	}
 		
@@ -119,11 +111,6 @@ public class SpoonAnalyze<T> {
 		checkAllProject();
 		
 		GraphAnalyzer.buildPonderalGraph(pairArray).display();
-
-
 	}
-	
 
-
-	
 }
