@@ -21,10 +21,11 @@ public class PackageAnalyzer implements ElementAnalyzer {
 
 	@Override
 	public String getName() {
+		return this.name;/*
 		if(parent.getParent() == null) {
 			return this.name;			
 		}
-		return this.parent.getName() + "." + this.name;
+		return this.parent.getName() + "." + this.name;*/
 	}
 
 	@Override

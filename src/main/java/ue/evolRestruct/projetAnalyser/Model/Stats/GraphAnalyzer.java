@@ -17,104 +17,33 @@ import org.graphstream.ui.view.Viewer;
 
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.GraphPair;
 
 public class GraphAnalyzer {
+
+    private static String style = 
+    		"node {" + 
+    		"	size: 10px, 10px;" + 
+    		"	shape: box;" + 
+    		"	fill-color: red;" + 
+    		"	stroke-mode: plain;" + 
+    		"	stroke-color: red;" + 
+    		"   z-index: 2;" +
+    		"   text-background-mode: plain;" +
+    		"   text-offset: 10px;"+
+    		"}" +
+    		"edge {" + 
+    		"	z-index: 1;" +	
+    		"   text-background-mode: plain;" +
+    		"   text-offset: 20px;"+
+    		"}";
+
 	
-	public PackageAnalyzer packageAnalyzer;
-	public Graph graph;
-		
-	public GraphAnalyzer(PackageAnalyzer packageAnalyzer) {
-		this.packageAnalyzer = packageAnalyzer;
-		
-		System.setProperty("org.graphstream.ui.renderer",
-		        "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		this.graph = new MultiGraph("CallMethodsGraph");
-        graph.addAttribute("ui.stylesheet", style);
-        graph.setAutoCreate(true);
-        graph.setStrict(false);
-        //graph.display();
-		
-		ArrayList<ClassAnalyzer> list = StatisticsAnalyzer.getAllClasses(packageAnalyzer);
-		System.out.println("LISTE");
-		for(ClassAnalyzer c : list) {
-			System.out.println("\t"+c.getQualifiedName());
-		}
-		System.out.println("--------------------------------------------");
-		System.out.println("--------------------------------------------");
-		
+	private static ClassAnalyzer findClass(ArrayList<ClassAnalyzer> list, String name) {
 		for(ClassAnalyzer currentClass : list) {
-			System.out.println("CLASS : " + currentClass.getQualifiedName());
-			for(MethodAnalyzer currentMethod : currentClass.getMethods()) {
-				//System.out.println("\tMETHOD : " + currentMethod.getName());
-				for(MethodInvocation methodInvocation : currentMethod.getInvocatedMethods()) {
-					IMethodBinding m = methodInvocation.resolveMethodBinding();
-					
-					String qualifierName = "";
-					if(m == null) {
-						if(methodInvocation.getExpression() == null) continue;
-						ITypeBinding t = methodInvocation.getExpression().resolveTypeBinding();
-						if(t == null) {
-							//printRed(methodInvocation.toString());
-							continue;
-						}
-						qualifierName = t.getName().toString();
-						qualifierName = t.getQualifiedName();
-						System.out.println(qualifierName);
-					}
-					else {
-						//qualifierName = m.getDeclaringClass().getQualifiedName();
-					}
-					
-					if( findClass(list, qualifierName) == null ) {
-						//System.out.println("NOT FOUND : " + qualifierName + " ::: " + methodInvocation.getName());
-					}
-					
-					
-					/*
-					System.out.println("\t\tINVOK : " + methodInvocation.toString());
-					Expression expr = methodInvocation.getExpression();
-					if(expr == null) {printRed("EXPR NULL"); continue;}
-					ITypeBinding tBind = expr.resolveTypeBinding();
-					if(tBind == null) {printRed("BIND NULL"); continue;}
-					
-					ITypeBinding ty = tBind.;
-					if(ty == null) {System.out.println("*******"); continue; }
-					String qualifiedName = ty.toString();
-					ClassAnalyzer fromClass = findClass(list, qualifiedName);					
-					if(fromClass == null) {printRed("CLASS NOT FOUND : \"" + qualifiedName + "\""); continue;}//La class n'appartient pas au projet} 
-					if(currentClass.getQualifiedName().equals(qualifiedName)) {continue; }
-					graph.addEdge(
-							currentClass.getQualifiedName() + "." + currentMethod.getName().toString() + " ---> " + qualifiedName + "." + methodInvocation.getName().toString(), 
-							currentClass.getQualifiedName(), 
-							qualifiedName,
-							true);
-					System.out.println(currentClass.getQualifiedName() + "." + currentMethod.getName().toString() + " ---> " + qualifiedName + "." + methodInvocation.getName().toString());
-					*/
-				}
-			}
-		}
-		
-		for (Node node : graph) {
-            node.addAttribute("ui.label", node.getId());
-        }
-		
-		for (Edge edge : graph.getEdgeSet()) {
-			//edge.addAttribute("ui.label", edge.getId());
-        }
-
-	
-	
-	}
-
-	public static void printRed(String s) {
-		System.out.println("-----------" + s);
-	}
-
-	
-	private ClassAnalyzer findClass(ArrayList<ClassAnalyzer> list, String name) {
-		for(ClassAnalyzer currentClass : list) {
-			if( currentClass.getQualifiedName().equals(name) ) {
+			if( currentClass.getSimpleName().equals(name) ) {
 				return currentClass;
 			}
 		}
@@ -122,6 +51,164 @@ public class GraphAnalyzer {
 		return null;
 	}
 	
+	private static String resolveClassName(MethodInvocation methodInvocation) {
+		String className = null;
+		
+		IMethodBinding m = methodInvocation.resolveMethodBinding();		
+		if(m == null) {
+			if(methodInvocation.getExpression() == null) return null;
+			ITypeBinding t = methodInvocation.getExpression().resolveTypeBinding();
+			if(t == null) {
+				//System.err.println("UNRESOLVABLE : " + methodInvocation.toString());
+				return null;
+			}
+			className = t.getName().toString();
+			//className = t.getQualifiedName();
+		}
+		else {
+			className = m.getDeclaringClass().getName().toString();
+			//className = m.getDeclaringClass().getQualifiedName();
+		}
+		
+		return className;
+	}
+	
+	private static Graph createEmptyGraph() {
+		System.setProperty("org.graphstream.ui.renderer",
+		        "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		Graph graph = new MultiGraph("CalledMethodsGraph");
+        graph.addAttribute("ui.stylesheet", style);
+        graph.setAutoCreate(true);
+        graph.setStrict(false);
+        return graph;
+	}
+	
+	public static Graph buildGeneralGraph(PackageAnalyzer packageAnalyzer) {
+		Graph graph = createEmptyGraph();
+        
+        ArrayList<ClassAnalyzer> listOfClasses = StatisticsAnalyzer.getAllClasses(packageAnalyzer);
+        for(MethodInvocationAnalyzer methodInvocationAnalyzer : StatisticsAnalyzer.getAllMethodInvocation(packageAnalyzer)) {
+
+        	String className = projectClassMethodCall(listOfClasses, methodInvocationAnalyzer);
+        	if(className == null) continue;
+
+        	ClassAnalyzer currentClass = methodInvocationAnalyzer.getClassAnalyzer();
+        	MethodAnalyzer currentMethod = methodInvocationAnalyzer.getMethodAnalyzer();
+        	MethodInvocation methodInvocation = methodInvocationAnalyzer.getMethodInvocation();
+        	
+			graph.addEdge(
+					currentClass.getQualifiedName() + "." + currentMethod.getName().toString() + " ---> " + className + "." + methodInvocation.getName().toString(), 
+					currentClass.getSimpleName(), 
+					className,
+					true);
+        }
+
+		
+		for (Node node : graph) {
+            node.addAttribute("ui.label", node.getId());
+        }
+		
+		for (Edge edge : graph.getEdgeSet()) {
+			//edge.addAttribute("ui.label", edge.getId());
+        }	
+		
+		return graph;
+	}
+	
+	private static String projectClassMethodCall(ArrayList<ClassAnalyzer> listOfClasses, MethodInvocationAnalyzer methodInvocationAnalyzer) {
+		ClassAnalyzer currentClass = methodInvocationAnalyzer.getClassAnalyzer();
+    	MethodAnalyzer currentMethod = methodInvocationAnalyzer.getMethodAnalyzer();
+    	MethodInvocation methodInvocation = methodInvocationAnalyzer.getMethodInvocation();
+    	
+    	String className = resolveClassName(methodInvocation);
+		if(className == null) {
+			return null;
+		}
+		
+		ClassAnalyzer findClass = findClass(listOfClasses, className);
+		if( findClass == null ) {
+			//System.err.println("NOT FOUND : " + className + " ::: " + methodInvocation.getName());
+			return null;
+		}
+		
+		if( findClass.getSimpleName().equals(currentClass.getSimpleName()) ) {
+			return null;
+		}
+		
+		return className;
+	}
+	
+	public static Graph buildPonderalGraph(PairArray pairArray) {
+		Graph graph = createEmptyGraph();
+		double sum = 0;
+		for (GraphPair pair : pairArray.getArray()) {
+			sum += pair.getValue();
+		}
+		
+		Integer id = 0;
+		for (GraphPair pair : pairArray.getArray()) {
+			double moyenne =  (((double) pair.getValue()) / sum);
+			
+			graph.addEdge(
+					id.toString(), 
+					pair.getP1(), 
+					pair.getP2());
+			graph.getEdge(id.toString()).addAttribute("ui.label", moyenne);
+			
+			id++;
+		}
+		
+		for (Node node : graph) {
+            node.addAttribute("ui.label", node.getId());
+        }
+		
+		return graph;
+	}
+	
+	public static Graph buildPonderalGraph(PackageAnalyzer packageAnalyzer) {
+		return buildPonderalGraph(createPairArray(packageAnalyzer));
+	}
+	
+	
+	public static PairArray createPairArray(PackageAnalyzer packageAnalyzer){
+		PairArray pairArray = new PairArray();
+		
+		ArrayList<ClassAnalyzer> listOfClasses = StatisticsAnalyzer.getAllClasses(packageAnalyzer);
+		
+		for(MethodInvocationAnalyzer methodInvocationAnalyzer : StatisticsAnalyzer.getAllMethodInvocation(packageAnalyzer)){
+			String className = projectClassMethodCall(listOfClasses, methodInvocationAnalyzer);
+        	if(className == null) continue;
+
+        	ClassAnalyzer currentClass = methodInvocationAnalyzer.getClassAnalyzer();
+        	MethodAnalyzer currentMethod = methodInvocationAnalyzer.getMethodAnalyzer();
+        	MethodInvocation methodInvocation = methodInvocationAnalyzer.getMethodInvocation();
+        	
+        	pairArray.addPair(currentClass.getSimpleName(), className);
+		}
+		
+		return pairArray;
+	}	
+	
+	public static void buildDendogramme(PackageAnalyzer packageAnalyzer) {
+		buildDendogramme(createPairArray(packageAnalyzer));
+	}
+	
+	public static void buildDendogramme(PairArray pairArray) {
+		
+		while(!pairArray.isEmpty()) {
+			GraphPair p = pairArray.higherPair();
+			//GraphPair()
+			
+			
+			
+			
+			
+			
+			
+			pairArray.removePair(p);
+		}
+		
+	}
 	
 
     public static void explore(Node source) {
@@ -134,41 +221,129 @@ public class GraphAnalyzer {
         }
     }
 
-    protected static void sleep() {
+    private static void sleep() {
         try { Thread.sleep(1000); } catch (Exception e) {}
     }
 
-    protected static String style = 
-    		"node {" + 
-    		"	size: 10px, 15px;" + 
-    		"	shape: box;" + 
-    		"	fill-color: green;" + 
-    		"	stroke-mode: plain;" + 
-    		"	stroke-color: yellow;" + 
-    		"}";
-    /*
-	public static void main(String args[]) {
-		Graph graph = new SingleGraph("tutorial 1");
 
-        //graph.addAttribute("ui.stylesheet", styleSheet);
-        graph.addAttribute("ui.stylesheet", style);
-        graph.setAutoCreate(true);
-        graph.setStrict(false);
-        graph.display();
+    
+    public static class PairArray {
+    	public ArrayList<GraphPair> array = new ArrayList<GraphPair>();
+    	
+    	public PairArray addPair(String s1, String s2) {
+    		GraphPair pair = new GraphPair(s1, s2);
+    		for (GraphPair graphPair : array) {
+				if(graphPair.equals(pair)) {
+					graphPair.setValue(graphPair.getValue()+1);
+					return this;
+				}
+			}
+    		array.add(pair);
+    		return this;
+    	}
+    	
+    	public GraphPair find(String s1, String s2) {
+    		GraphPair pair = new GraphPair(s1, s2);
+    		for (GraphPair graphPair : array) {
+				if(graphPair.equals(pair)) {
+					return graphPair;
+				}
+			}
+    		return null;
+    	}
+    	
+    	public String toString() {
+    		String buffer = "";
+    		for (GraphPair pair : array) {
+    			buffer += pair + "\n";
+			}
+    		return buffer;
+    	}
 
-        graph.addEdge("AB", "Adrien", "Bastien");
-        graph.addEdge("BC", "Bastien", "Caroline");
-        graph.addEdge("CA", "Caroline", "Adrien");
-        graph.addEdge("AD", "Adrien", "Denis");
-        graph.addEdge("DE", "Denis", "Etienne");
-        graph.addEdge("DF", "Denis", "Fabien");
-        graph.addEdge("EF", "Etienne", "Fabien");
+		public ArrayList<GraphPair> getArray() {
+			return array;
+		}
+		
+		public Boolean isEmpty() {
+			return this.array.isEmpty();
+		}
+		
+		public GraphPair higherPair() {
+			GraphPair max = null;
+			for (GraphPair pair : array) {
+				if(max == null || (pair.getValue() > max.getValue()) ) {
+					max = pair;
+				}
+			}
+			return max;
+		}
+		
+		public PairArray removePair(GraphPair pair) {
+			GraphPair f = this.find(pair.getP1(), pair.getP2());
+			if(f != null) {
+				this.array.remove(f);
+			}
+			
+			return this;
+		}
+    }
+    
+    
+    public static class GraphPair{
+    	private String p1;
+    	private String p2;
+    	private Integer value;
+    	
+    	public GraphPair(String s1, String s2) {
+    		this(s1, s2, 1);
+    	}
+    	
+    	public GraphPair(String s1, String s2, Integer value) {
+    		this.p1 = s1;
+    		this.p2 = s2;
+    		this.value = value;
+    	}
+    	
+    	
+    	public boolean equals(GraphPair pair) {
+    		Boolean b1 = (this.p1.equals(pair.getP1()) && this.p2.equals(pair.getP2()));
+    		Boolean b2 = (this.p1.equals(pair.getP2()) && this.p2.equals(pair.getP1()));
+    		return (b1 || b2);
+    	}
+    	
+    	public String toString() {
+    		return "<" + this.getP1() + ", " + this.getP2() + "> : " + this.getValue();
+    	}
 
-        for (Node node : graph) {
-            node.addAttribute("ui.label", node.getId());
-        }
 
-       // explore(graph.getNode("Adrien"));
-    }*/
+		public String getP1() {
+			return p1;
+		}
+
+
+		public void setP1(String p1) {
+			this.p1 = p1;
+		}
+
+
+		public String getP2() {
+			return p2;
+		}
+
+
+		public void setP2(String p2) {
+			this.p2 = p2;
+		}
+
+
+		public Integer getValue() {
+			return value;
+		}
+
+
+		public void setValue(Integer value) {
+			this.value = value;
+		}
+    }
 
 }
