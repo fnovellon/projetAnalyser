@@ -207,7 +207,7 @@ public class GraphAnalyzer {
     		"}";
     
     public static class PairArray {
-    	private ArrayList<GraphPair> array = new ArrayList<GraphPair>();
+    	public ArrayList<GraphPair> array = new ArrayList<GraphPair>();
     	
     	public PairArray addPair(String s1, String s2) {
     		GraphPair pair = new GraphPair(s1, s2);
