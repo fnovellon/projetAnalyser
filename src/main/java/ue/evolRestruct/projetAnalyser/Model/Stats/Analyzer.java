@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.Name;
 
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ElementAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.PackageDeclarationVisitor;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.TypeDeclarationVisitor;
@@ -40,7 +41,13 @@ public class Analyzer {
 			//Analyzer analyzer = new Analyzer("C:\\Users\\flnov\\OneDrive\\Documents\\ExtractProjetWorkSpace\\projectTest");
 			Analyzer analyzer = new Analyzer("./");
 			PackageAnalyzer project = analyzer.parseCallVisitors();
-			GraphAnalyzer graph = new GraphAnalyzer(project);
+			
+			//GraphAnalyzer.buildGeneralGraph(project).display();
+			printStats(project);
+			GraphAnalyzer.buildPonderalGraph(project).display();
+
+			
+			
 			
 			
 		} catch (IOException e) {
@@ -82,7 +89,7 @@ public class Analyzer {
 		return root;
 	}
 	
-	public void printStats(PackageAnalyzer root) {
+	public static void printStats(PackageAnalyzer root) {
 		System.out.println(root.toString());
 		System.out.println("Nombre de classes : " + StatisticsAnalyzer.numberOfClasses(root));
 		System.out.println("Nombre de lignes de code : " + StatisticsAnalyzer.numberOfLinesOfCode(root));

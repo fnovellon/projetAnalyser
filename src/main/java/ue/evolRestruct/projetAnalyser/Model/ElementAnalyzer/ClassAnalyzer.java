@@ -63,8 +63,15 @@ public class ClassAnalyzer implements ElementAnalyzer {
 	@Override
 	public String toString(int tabNb) {
 		String buffer = "";
-		buffer = this.toString();
-		for(FieldDeclaration fd : fields) {
+		buffer = this.toString() + "\n";
+		
+		return buffer;
+	}
+	
+	public String toString() {
+		return getName() + " in package " + this.getParent().getName();
+		/*
+		 		for(FieldDeclaration fd : fields) {
 			for(int i = 0; i < tabNb+1; i++) {
 				buffer += "\t";
 			}
@@ -77,13 +84,9 @@ public class ClassAnalyzer implements ElementAnalyzer {
 			}
 			buffer += ma.toString().replace("\n", "");
 			buffer += "\n";
-		}
-		
-		return buffer;
-	}
-	
-	public String toString() {
-		return getName() + " in package " + this.getParent().getName();
+		} 
+		 
+		 */
 	}
 	
 	

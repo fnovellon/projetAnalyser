@@ -3,25 +3,15 @@ package ue.evolRestruct.projetAnalyser.Model.Stats;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import org.eclipse.jdt.core.dom.MethodInvocation;
+
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ElementAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 
 public class StatisticsAnalyzer{
-	
-	public  int numberOfClassesd(PackageAnalyzer packageAnalyzer) {
-		int sum = 0;
-		for(ElementAnalyzer e : packageAnalyzer.getContent()){
-			if(e.isPackage()) {
-				sum += numberOfClasses((PackageAnalyzer) e);
-			}
-			else {
-				sum++;
-			}
-		}
-		return sum;
-	}
 	
 	public static int numberOfClasses(PackageAnalyzer packageAnalyzer) {
 		int sum = 0;
@@ -260,6 +250,17 @@ public class StatisticsAnalyzer{
 		return max;
 	}
 	
+	public static ArrayList<MethodInvocationAnalyzer> getAllMethodInvocation(PackageAnalyzer packageAnalyzer){
+		ArrayList<MethodInvocationAnalyzer> array = new ArrayList<MethodInvocationAnalyzer>();
+		
+		for(MethodAnalyzer currentMethod : getAllMethods(packageAnalyzer)) {
+			for(MethodInvocation methodInvocation : currentMethod.getInvocatedMethods()) {
+				array.add(new MethodInvocationAnalyzer(currentMethod, methodInvocation));
+			}		
+		}
+		
+		return array;
+	}
 	
 	
 	

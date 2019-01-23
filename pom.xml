@@ -53,12 +53,7 @@
 			<version>7.2.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/javafx/javafxc -->
-		<dependency>
-			<groupId>javafx</groupId>
-			<artifactId>javafxc</artifactId>
-			<version>1.3.0</version>
-		</dependency>
+
 
 
 
