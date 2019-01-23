@@ -15,5 +15,9 @@ public class Vehicule {
     public String toString() {
 		return "Véhicule " + this.modele + " de la marque " + this.marque + ", de couleur " + this.couleur; 
 	}
+    
+    public String bonjour() {
+		return "Véhicule " + this.modele + " de la marque " + this.marque + ", de couleur " + this.couleur; 
+	}
 
 }
