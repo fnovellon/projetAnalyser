@@ -111,7 +111,7 @@
                               <Insets left="15.0" />
                            </padding>
                         </Label>
-                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Les classes qui possèdent plus de X méthodes" wrapText="true" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Les classes qui possèdent plus de X=10 méthodes" wrapText="true" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
                            <padding>
                               <Insets left="15.0" />
                            </padding>
