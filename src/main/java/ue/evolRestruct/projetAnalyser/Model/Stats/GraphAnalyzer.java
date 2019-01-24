@@ -476,7 +476,6 @@ public class GraphAnalyzer {
 
             f.setSize(800,800);
             f.setLocationRelativeTo(null);
-            f.setVisible(true);
             return f;
     	}
     	
