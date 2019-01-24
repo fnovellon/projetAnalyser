@@ -1,8 +1,12 @@
 package ue.evolRestruct.projetAnalyser.Model.Stats;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import javax.swing.JFrame;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -15,6 +19,7 @@ import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 
+import ue.evolRestruct.projetAnalyser.Model.DendroPackage.DendroPaint;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
@@ -194,38 +199,40 @@ public class GraphAnalyzer {
 	}
 	
 	public static void buildDendogramme(PairArray pairArray) {
-		Graph graph = buildPonderalGraph(pairArray);		
+		Graph graph = buildPonderalGraph(pairArray);	
+		DendroAnalyzer dendro = new DendroAnalyzer();
+		Set<String> set = pairArray.getSetOfNodeString();
+		Iterator<String> iterator = set.iterator();
+		while(iterator.hasNext()){
+		  String element = (String) iterator.next();
+		  dendro.add(element);
+		}
 		
-		//while(!pairArray.isEmpty()) {
-		System.out.println(pairArray.getArray().size());
+		
+		while(!pairArray.isEmpty()) {
 			GraphPair maxPair = pairArray.higherPair();
 			String nNode = "(" + maxPair.getP1() + " + " + maxPair.getP2() + ")";
+			dendro.merge(maxPair.getP1(), maxPair.getP2());
 //			System.out.println(nNode);
 			
-			ArrayList<GraphPair> list = new ArrayList<GraphPair>();
+			ArrayList<GraphPair> list = pairArray.nearFrom(maxPair.getP1(), maxPair.getP2());
+			
 			for (GraphPair pair : list) {
 				String nearString = "";
-	            if(pair.getP1().equals(maxPair.getP1())) {
-	            	nearString = pair.getP2();
+	            if(pair.getP1().equals(maxPair.getP1()) || pair.getP1().equals(maxPair.getP2())) {
+	            	pair.setP1(nNode);
 	            }
-	            else {
-	            	nearString = pair.getP1();
+	            else if(pair.getP2().equals(maxPair.getP1()) || pair.getP2().equals(maxPair.getP2())) {
+	            	pair.setP2(nNode);
 	            }
-				pairArray.addPair(new GraphPair(nearString, nNode, pair.getValue()));
 			}
 
 	        
 	        pairArray.removePair(maxPair);
-	        
-			System.out.println(pairArray.getArray().size());
-	        
-			//GraphPair(p.getP1(), p.getP2(), p.getValue());
-			
-			//pairArray.removePair(maxPair);
-		//}
-		
 
-			//GraphAnalyzer.buildPonderalGraph(pairArray).display();
+		}
+		
+		dendro.buildDendro();
 		
 	}
 	
@@ -326,7 +333,7 @@ public class GraphAnalyzer {
 			GraphPair f = this.find(pair.getP1(), pair.getP2());
 			if(f != null) {
 				if(this.array.remove(f)) {
-					System.out.println("REMOVE");
+					//System.out.println("REMOVE");
 				}
 					
 			}
@@ -340,6 +347,17 @@ public class GraphAnalyzer {
 				sum += pair.getValue();
 			}
 			return sum;
+		}
+		
+		public Set<String> getSetOfNodeString(){
+			Set<String> s = new HashSet<String>();
+			
+			for (GraphPair pair : array) {
+				s.add(pair.getP1());
+				s.add(pair.getP2());
+			}
+			
+			return s;
 		}
     }
     
@@ -400,5 +418,90 @@ public class GraphAnalyzer {
 			this.value = value;
 		}
     }
+    
+    public static class DendroAnalyzer{
+    	
+    	public ArrayList<NodeCluster> clusters = new ArrayList<NodeCluster>();
+    	
+    	public void add(String s) {
+    		clusters.add(new NodeCluster(null, null, s));
+    	}
+    	
+    	public void merge(String s1, String s2) {
+    		NodeCluster n1 = null;
+    		NodeCluster n2 = null;
+    		
+    		for (NodeCluster node : clusters) {
+				if(node.value.equals(s1)) {
+					n1 = node;
+				}
+				else if (node.value.equals(s2) ) {
+					n2 = node;
+				}
+			}
+    		if(n1 == null || n2 == null) {
+    			System.out.println(s1 + " / " + s2);
+    			System.out.println("DENDRO : \n" +this);
+    		}
+    		
+    		clusters.add(new NodeCluster(n1, n2, "(" + s1 + " + " + s2 + ")"));
+    		
+    		clusters.remove(n1);
+    		clusters.remove(n2);
+    	}
+    	
+    	public void buildDendro() {
+    		
+    		for (NodeCluster node : clusters) {
+    			JFrame f = new JFrame();
+                f.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+                DendroPaint dendro = new DendroPaint(DendroPaint.buildDendro(node));
+                f.getContentPane().add(dendro);
+
+                f.setSize(800,800);
+                f.setLocationRelativeTo(null);
+                f.setVisible(true);
+    			
+			}
+    	}
+    	
+    	public String toString() {
+    		String buffer = "";
+    		for (NodeCluster node : clusters) {
+				buffer += node.toString() + "\n";
+			}
+    		return buffer;
+    	}
+    	
+    	
+    	
+    	
+    	
+    }
+    
+    public static class NodeCluster{
+		
+		public String value;
+		public NodeCluster left;
+		public NodeCluster right;
+		
+		public NodeCluster(NodeCluster l, NodeCluster r, String v) {
+			this.left = l;
+			this.right = r;
+			this.value = v;
+		}
+		
+		public String toString() {
+			String buffer = value;
+			buffer += " -->";
+			buffer += (left == null) ? "(null" : "("+left.toString();
+			buffer += ", ";
+			buffer += (right == null) ? "null)" : right.toString()+")";
+			return buffer;
+		}
+		
+		
+	}
 
 }

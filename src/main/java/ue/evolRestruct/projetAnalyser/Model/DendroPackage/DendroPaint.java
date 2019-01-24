@@ -1,3 +1,4 @@
+package ue.evolRestruct.projetAnalyser.Model.DendroPackage;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -5,13 +6,15 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.NodeCluster;
+
 public class DendroPaint extends JPanel{
 	
-    private static <T> Node<T> create(T contents){
+    public static <T> Node<T> create(T contents){
         return new Node<T>(contents);
     }
     
-    private static <T> Node<T> create(Node<T> child0, Node<T> child1){
+    public static <T> Node<T> create(Node<T> child0, Node<T> child1){
         return new Node<T>(child0, child1);
     }
 
@@ -23,6 +26,21 @@ public class DendroPaint extends JPanel{
     private int widthPerLevel;
     private int currentY;
     private final int margin = 25;
+    
+    public static Node<String> buildDendro(NodeCluster node) {
+    	if(node.left == null && node.right == null) {
+    		System.out.println("null");
+    		return create(node.value);
+    	}
+    	else if (node.left != null && node.right != null){
+    		System.out.println("pas null");
+    		return create(buildDendro(node.right), buildDendro(node.left));
+    	}
+    	else {
+    		System.out.println("Truc que je comprends pas");
+    		return null;
+    	}
+    }
 
     DendroPaint() {
         root =
@@ -44,6 +62,10 @@ public class DendroPaint extends JPanel{
                     
                 )
             );
+    }
+    
+    public DendroPaint(Node<String> root){
+    	this.root = root;
     }
 
     private static <T> int countLeaves(Node<T> node){
