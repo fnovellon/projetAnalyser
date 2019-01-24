@@ -460,13 +460,14 @@ public class GraphAnalyzer {
     	}
     	
     	public void buildDendro() {
+    		ArrayList<JFrame> frames = new ArrayList<JFrame>();
     		
     		for (NodeCluster node : clusters) {
-    			openDendro(node);
+    			frames.add(openDendro(node));
 			}
     	}
     	
-    	public static void openDendro(NodeCluster node) {
+    	public static JFrame openDendro(NodeCluster node) {
 			JFrame f = new JFrame();
             f.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -475,7 +476,7 @@ public class GraphAnalyzer {
 
             f.setSize(800,800);
             f.setLocationRelativeTo(null);
-            f.setVisible(true);
+            return f;
     	}
     	
     	public String toString() {
