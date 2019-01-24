@@ -459,12 +459,13 @@ public class GraphAnalyzer {
     		clusters.remove(n2);
     	}
     	
-    	public void buildDendro() {
+    	public ArrayList<JFrame> buildDendro() {
     		ArrayList<JFrame> frames = new ArrayList<JFrame>();
     		
     		for (NodeCluster node : clusters) {
     			frames.add(openDendro(node));
 			}
+    		return frames;
     	}
     	
     	public static JFrame openDendro(NodeCluster node) {

@@ -17,11 +17,16 @@ import org.graphstream.ui.view.Viewer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.Analyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.DendroAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.NodeCluster;
 import ue.evolRestruct.projetAnalyser.Model.Stats.StatisticsAnalyzer;
 import spoonCode.SpoonAnalyze;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JFrame;
 
 public class MainFrameControler {
 	
@@ -91,12 +96,16 @@ public class MainFrameControler {
     @FXML // fx:id="spoonDendro"
     private Button spoonDendroButton; // Value injected by FXMLLoader
     
+    @FXML // fx:id="partitions"
+    private Button partitions; // Value injected by FXMLLoader
+    
 	private String pathFolder = null;
 	private Graph spoonGraph = null;
 	private Graph callGraph = null;
 	private Graph couplingGraph = null;
-	private PackageAnalyzer packageAnalyzer = null;
-	private Boolean spoonIsReady = false;
+	private ArrayList<JFrame> arrayDendro = null;
+	private ArrayList<NodeCluster> arrayPartition = null;
+	private ArrayList<JFrame> arraySpoonDendro = null;
 
     @FXML
     void triggerCallGraph(ActionEvent event) {
@@ -127,8 +136,10 @@ public class MainFrameControler {
     @FXML
     void triggerDendro(ActionEvent event) {
     	System.out.println("triggerDendro");
-    	if(this.packageAnalyzer != null) {
-    		GraphAnalyzer.buildDendogramme(this.packageAnalyzer);
+    	if(this.arrayDendro != null) {
+    		for(JFrame windows : this.arrayDendro) {
+    			windows.setVisible(true);
+    		}
     	}
     	else {
     		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
@@ -155,30 +166,32 @@ public class MainFrameControler {
 				// Spoon
 				SpoonAnalyze.checkAllProject(this.pathFolder);   			
 				this.spoonGraph = GraphAnalyzer.buildPonderalGraph(SpoonAnalyze.pairArray);
-				this.spoonIsReady = true;
 				
 				// AST
 				Analyzer analyzer = new Analyzer("./");
-				this.packageAnalyzer = analyzer.parseCallVisitors();	
+				PackageAnalyzer project = analyzer.parseCallVisitors();	
 				
-				q1.setText(String.valueOf(StatisticsAnalyzer.numberOfClasses(packageAnalyzer)));
-				q2.setText(String.valueOf(StatisticsAnalyzer.numberOfLinesOfCode(packageAnalyzer)));
-				q3.setText(String.valueOf(StatisticsAnalyzer.numberOfMethods(packageAnalyzer)));
-				q4.setText(String.valueOf(StatisticsAnalyzer.numberOfPackages(packageAnalyzer)));
-				q5.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfMethodsByClass(packageAnalyzer)));
-				q6.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfLinesOfCodeByMethod(packageAnalyzer)));
-				q7.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfFieldsByClass(packageAnalyzer)));
-				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(packageAnalyzer, 10)));
-				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(packageAnalyzer, 10)));
-				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(packageAnalyzer, 10)));
-				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(packageAnalyzer, 3))+"avec X=3");
-				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(packageAnalyzer, 10)));
-				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(packageAnalyzer)));
+				q1.setText(String.valueOf(StatisticsAnalyzer.numberOfClasses(project)));
+				q2.setText(String.valueOf(StatisticsAnalyzer.numberOfLinesOfCode(project)));
+				q3.setText(String.valueOf(StatisticsAnalyzer.numberOfMethods(project)));
+				q4.setText(String.valueOf(StatisticsAnalyzer.numberOfPackages(project)));
+				q5.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfMethodsByClass(project)));
+				q6.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfLinesOfCodeByMethod(project)));
+				q7.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfFieldsByClass(project)));
+				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(project, 10)));
+				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(project, 10)));
+				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(project, 10)));
+				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 3)));
+				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(project, 10)));
+				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(project)));
 				
-				this.callGraph = GraphAnalyzer.buildGeneralGraph(packageAnalyzer);
-				this.couplingGraph = GraphAnalyzer.buildPonderalGraph(packageAnalyzer);
+				this.callGraph = GraphAnalyzer.buildGeneralGraph(project);
+				this.couplingGraph = GraphAnalyzer.buildPonderalGraph(project);
+				DendroAnalyzer da = GraphAnalyzer.buildDendogramme(project);
+				this.arrayDendro = da.buildDendro();
+				this.arraySpoonDendro = GraphAnalyzer.buildDendogramme(SpoonAnalyze.pairArray).buildDendro();
 				//GraphAnalyzer.buildDendogramme(project);
-
+				this.arrayPartition = da.getClusters();
     				
     				
     				
@@ -205,8 +218,23 @@ public class MainFrameControler {
     @FXML
     void triggerSpoonDendro(ActionEvent event) {
     	System.out.println("triggerSpoonDendro");
-    	if(this.spoonIsReady) {
-    		GraphAnalyzer.buildDendogramme(SpoonAnalyze.pairArray);
+    	if(this.arraySpoonDendro != null) {
+    		for(JFrame windows : this.arraySpoonDendro) {
+    			windows.setVisible(true);
+    		}
+    	}
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
+    	}
+    }
+    
+    @FXML
+    void triggerParittions(ActionEvent event) {
+    	System.out.println("triggerParittions");
+    	if(this.arrayPartition != null) {
+    		for(NodeCluster nc : this.arrayPartition) {
+    			DendroAnalyzer.openDendro(nc).setVisible(true);
+    		}
     	}
     	else {
     		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
