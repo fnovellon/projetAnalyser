@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.swing.JFrame;
 
@@ -194,11 +195,11 @@ public class GraphAnalyzer {
 		return pairArray;
 	}	
 	
-	public static void buildDendogramme(PackageAnalyzer packageAnalyzer) {
-		buildDendogramme(createPairArray(packageAnalyzer));
+	public static DendroAnalyzer buildDendogramme(PackageAnalyzer packageAnalyzer) {
+		return buildDendogramme(createPairArray(packageAnalyzer));
 	}
 	
-	public static void buildDendogramme(PairArray pairArray) {
+	public static DendroAnalyzer buildDendogramme(PairArray pairArray) {
 		Graph graph = buildPonderalGraph(pairArray);	
 		DendroAnalyzer dendro = new DendroAnalyzer();
 		Set<String> set = pairArray.getSetOfNodeString();
@@ -212,7 +213,7 @@ public class GraphAnalyzer {
 		while(!pairArray.isEmpty()) {
 			GraphPair maxPair = pairArray.higherPair();
 			String nNode = "(" + maxPair.getP1() + " + " + maxPair.getP2() + ")";
-			dendro.merge(maxPair.getP1(), maxPair.getP2());
+			dendro.merge(maxPair.getP1(), maxPair.getP2(), maxPair.getValue());
 //			System.out.println(nNode);
 			
 			ArrayList<GraphPair> list = pairArray.nearFrom(maxPair.getP1(), maxPair.getP2());
@@ -235,8 +236,12 @@ public class GraphAnalyzer {
 
 		}
 		
-		dendro.buildDendro();
-		
+		return dendro;
+		/*
+		for(NodeCluster node : selectClusters(dendro)) {
+			DendroAnalyzer.openDendro(node);
+		}
+		*/
 	}
 	
 
@@ -430,7 +435,7 @@ public class GraphAnalyzer {
     		clusters.add(new NodeCluster(null, null, s));
     	}
     	
-    	public void merge(String s1, String s2) {
+    	public void merge(String s1, String s2, double value) {
     		NodeCluster n1 = null;
     		NodeCluster n2 = null;
     		
@@ -446,8 +451,9 @@ public class GraphAnalyzer {
     			System.out.println(s1 + " / " + s2);
     			System.out.println("DENDRO : \n" +this);
     		}
-    		
-    		clusters.add(new NodeCluster(n1, n2, "(" + s1 + " + " + s2 + ")"));
+    		NodeCluster nNodeCluster = new NodeCluster(n1, n2, "(" + s1 + " + " + s2 + ")");
+    		nNodeCluster.mergeValue = value;
+    		clusters.add(nNodeCluster);
     		
     		clusters.remove(n1);
     		clusters.remove(n2);
@@ -456,17 +462,20 @@ public class GraphAnalyzer {
     	public void buildDendro() {
     		
     		for (NodeCluster node : clusters) {
-    			JFrame f = new JFrame();
-                f.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-                DendroPaint dendro = new DendroPaint(DendroPaint.buildDendro(node));
-                f.getContentPane().add(dendro);
-
-                f.setSize(800,800);
-                f.setLocationRelativeTo(null);
-                f.setVisible(true);
-    			
+    			openDendro(node);
 			}
+    	}
+    	
+    	public static void openDendro(NodeCluster node) {
+			JFrame f = new JFrame();
+            f.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+            DendroPaint dendro = new DendroPaint(DendroPaint.buildDendro(node));
+            f.getContentPane().add(dendro);
+
+            f.setSize(800,800);
+            f.setLocationRelativeTo(null);
+            f.setVisible(true);
     	}
     	
     	public String toString() {
@@ -476,6 +485,10 @@ public class GraphAnalyzer {
 			}
     		return buffer;
     	}
+
+		public ArrayList<NodeCluster> getClusters() {
+			return clusters;
+		}
     	
     	
     	
@@ -488,6 +501,7 @@ public class GraphAnalyzer {
 		public String value;
 		public NodeCluster left;
 		public NodeCluster right;
+		public double mergeValue = 0;
 		
 		public NodeCluster(NodeCluster l, NodeCluster r, String v) {
 			this.left = l;
@@ -504,7 +518,48 @@ public class GraphAnalyzer {
 			return buffer;
 		}
 		
+		public double coupleValue() {
+			double sum = mergeValue;
+			if(left != null && right != null) {
+				sum += left.coupleValue() + right.coupleValue();
+			}
+			return sum;
+		}
+		
 		
 	}
+    
+    public static ArrayList<NodeCluster> selectClusters(DendroAnalyzer dendro){
+    	ArrayList<NodeCluster> partitions = new ArrayList<NodeCluster>();
+    	
+    	for(NodeCluster composant : dendro.getClusters()) {
+    		Stack<NodeCluster> stack = new Stack<NodeCluster>();
+    		stack.push(composant);
+    		while( !stack.isEmpty() ) {
+    			NodeCluster father = stack.pop();
+    			NodeCluster child1 = father.left;
+    			NodeCluster child2 = father.right;
+    			
+    			if(father.left == null || father.right == null) {
+    				partitions.add(father);
+    				continue;
+    			}
+    			
+    			double cFather = father.coupleValue();
+    			double averageCChild = (child1.coupleValue() + child1.coupleValue()) / 2;
+    			if(cFather > averageCChild) {
+    				partitions.add(father);
+    			}
+    			else {
+    				stack.add(child1);
+    				stack.add(child2);
+    			}
+    			    			
+    		}
+    		
+    	}
+    	
+    	return partitions;
+    }
 
 }
