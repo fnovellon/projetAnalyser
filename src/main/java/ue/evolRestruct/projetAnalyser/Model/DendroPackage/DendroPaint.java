@@ -6,7 +6,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.NodeCluster;
+import ue.evolRestruct.projetAnalyser.Model.Stats.DendroAnalyzer;
+
 
 public class DendroPaint extends JPanel{
 	
@@ -27,7 +28,7 @@ public class DendroPaint extends JPanel{
     private int currentY;
     private final int margin = 25;
     
-    public static Node<String> buildDendro(NodeCluster node) {
+    public static Node<String> buildDendro(DendroAnalyzer.NodeCluster node) {
     	if(node.left == null && node.right == null) {
     		return create(node.value);
     	}
