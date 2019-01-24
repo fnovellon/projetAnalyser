@@ -17,8 +17,8 @@ import org.graphstream.ui.view.Viewer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.Analyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer;
-import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.DendroAnalyzer;
-import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.NodeCluster;
+import ue.evolRestruct.projetAnalyser.Model.Stats.DendroAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.DendroAnalyzer.NodeCluster;
 import ue.evolRestruct.projetAnalyser.Model.Stats.StatisticsAnalyzer;
 import spoonCode.SpoonAnalyze;
 
@@ -181,7 +181,7 @@ public class MainFrameControler {
 				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(project, 10)));
 				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(project, 10)));
 				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(project, 10)));
-				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 3)));
+				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 10)));
 				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(project, 10)));
 				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(project)));
 				
