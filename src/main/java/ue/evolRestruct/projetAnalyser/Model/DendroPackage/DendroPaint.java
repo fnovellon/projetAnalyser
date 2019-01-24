@@ -29,41 +29,17 @@ public class DendroPaint extends JPanel{
     
     public static Node<String> buildDendro(NodeCluster node) {
     	if(node.left == null && node.right == null) {
-    		System.out.println("null");
     		return create(node.value);
     	}
     	else if (node.left != null && node.right != null){
-    		System.out.println("pas null");
     		return create(buildDendro(node.right), buildDendro(node.left));
     	}
     	else {
-    		System.out.println("Truc que je comprends pas");
+    		System.err.println("Erreur création dendrogramme");
     		return null;
     	}
     }
 
-    DendroPaint() {
-        root =
-            create(
-                create(
-                    create("bite"),
-                    create(
-                        create("couille1"),
-                        create("couille2")
-                    )
-                ),
-                
-                create(
-                    create("3"),
-                    create(
-	                    create("2"),
-	                    create("1")
-	                )
-                    
-                )
-            );
-    }
-    
     public DendroPaint(Node<String> root){
     	this.root = root;
     }

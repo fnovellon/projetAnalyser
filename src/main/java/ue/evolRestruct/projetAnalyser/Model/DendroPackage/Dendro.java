@@ -13,25 +13,9 @@ import javax.swing.SwingUtilities;
 public class Dendro{
 
 	public static void main(String[] args){
-        SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run(){
-                createAndShowGUI();
-            }
-        });
+
     }
 
-    private static void createAndShowGUI(){
-        JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        DendroPaint panel = new DendroPaint();
-        f.getContentPane().add(panel);
-
-        f.setSize(800,800);
-        f.setLocationRelativeTo(null);
-        f.setVisible(true);
-    }
 }
 
 class Node<T>{

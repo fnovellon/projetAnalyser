@@ -218,13 +218,16 @@ public class GraphAnalyzer {
 			ArrayList<GraphPair> list = pairArray.nearFrom(maxPair.getP1(), maxPair.getP2());
 			
 			for (GraphPair pair : list) {
-				String nearString = "";
+				
 	            if(pair.getP1().equals(maxPair.getP1()) || pair.getP1().equals(maxPair.getP2())) {
-	            	pair.setP1(nNode);
+	            	pairArray.addPair(new GraphPair(nNode, pair.getP2(), pair.value));
 	            }
 	            else if(pair.getP2().equals(maxPair.getP1()) || pair.getP2().equals(maxPair.getP2())) {
-	            	pair.setP2(nNode);
+	            	pairArray.addPair(new GraphPair(pair.getP1(), nNode, pair.value));
 	            }
+	            
+	            
+	            pairArray.removePair(pair);
 			}
 
 	        
