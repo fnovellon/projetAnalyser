@@ -17,19 +17,18 @@ import org.graphstream.ui.view.Viewer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.Analyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.DendroAnalyzer;
+import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.NodeCluster;
 import ue.evolRestruct.projetAnalyser.Model.Stats.StatisticsAnalyzer;
 import spoonCode.SpoonAnalyze;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JFrame;
 
 public class MainFrameControler {
-
-	private String pathFolder = null;
-	private Graph spoonGraph = null;
-	private Graph callGraph = null;
-	private Graph couplingGraph = null;
-	private Graph dendro = null;
 	
     @FXML // fx:id="ap"
     private AnchorPane ap; // Value injected by FXMLLoader
@@ -93,6 +92,20 @@ public class MainFrameControler {
 
     @FXML // fx:id="SpoonCouplingGraph"
     private Button spoonCouplingGraphButton; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="spoonDendro"
+    private Button spoonDendroButton; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="partitions"
+    private Button partitions; // Value injected by FXMLLoader
+    
+	private String pathFolder = null;
+	private Graph spoonGraph = null;
+	private Graph callGraph = null;
+	private Graph couplingGraph = null;
+	private ArrayList<JFrame> arrayDendro = null;
+	private ArrayList<NodeCluster> arrayPartition = null;
+	private ArrayList<JFrame> arraySpoonDendro = null;
 
     @FXML
     void triggerCallGraph(ActionEvent event) {
@@ -123,13 +136,15 @@ public class MainFrameControler {
     @FXML
     void triggerDendro(ActionEvent event) {
     	System.out.println("triggerDendro");
-    	if(this.dendro != null) {
-
+    	if(this.arrayDendro != null) {
+    		for(JFrame windows : this.arrayDendro) {
+    			windows.setVisible(true);
+    		}
     	}
-    	else
-    	{
-    		System.out.println("Veuillez choisir un dossier ou attendre que le projet est été analyser pour voir ce graphe");
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
     	}
+    	
     }
 
     @SuppressWarnings("restriction")
@@ -166,14 +181,17 @@ public class MainFrameControler {
 				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(project, 10)));
 				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(project, 10)));
 				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(project, 10)));
-				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 3))+"avec X=3");
+				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 3)));
 				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(project, 10)));
 				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(project)));
 				
 				this.callGraph = GraphAnalyzer.buildGeneralGraph(project);
 				this.couplingGraph = GraphAnalyzer.buildPonderalGraph(project);
+				DendroAnalyzer da = GraphAnalyzer.buildDendogramme(project);
+				this.arrayDendro = da.buildDendro();
+				this.arraySpoonDendro = GraphAnalyzer.buildDendogramme(SpoonAnalyze.pairArray).buildDendro();
 				//GraphAnalyzer.buildDendogramme(project);
-
+				this.arrayPartition = da.getClusters();
     				
     				
     				
@@ -194,6 +212,32 @@ public class MainFrameControler {
     	else
     	{
     		System.out.println("Veuillez choisir un dossier ou attendre que le projet est été analyser pour voir ce graphe");
+    	}
+    }
+    
+    @FXML
+    void triggerSpoonDendro(ActionEvent event) {
+    	System.out.println("triggerSpoonDendro");
+    	if(this.arraySpoonDendro != null) {
+    		for(JFrame windows : this.arraySpoonDendro) {
+    			windows.setVisible(true);
+    		}
+    	}
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
+    	}
+    }
+    
+    @FXML
+    void triggerParittions(ActionEvent event) {
+    	System.out.println("triggerParittions");
+    	if(this.arrayPartition != null) {
+    		for(NodeCluster nc : this.arrayPartition) {
+    			DendroAnalyzer.openDendro(nc).setVisible(true);
+    		}
+    	}
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
     	}
     }
 
