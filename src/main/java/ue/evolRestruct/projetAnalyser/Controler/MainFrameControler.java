@@ -24,12 +24,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class MainFrameControler {
-
-	private String pathFolder = null;
-	private Graph spoonGraph = null;
-	private Graph callGraph = null;
-	private Graph couplingGraph = null;
-	private Graph dendro = null;
 	
     @FXML // fx:id="ap"
     private AnchorPane ap; // Value injected by FXMLLoader
@@ -93,6 +87,16 @@ public class MainFrameControler {
 
     @FXML // fx:id="SpoonCouplingGraph"
     private Button spoonCouplingGraphButton; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="spoonDendro"
+    private Button spoonDendroButton; // Value injected by FXMLLoader
+    
+	private String pathFolder = null;
+	private Graph spoonGraph = null;
+	private Graph callGraph = null;
+	private Graph couplingGraph = null;
+	private PackageAnalyzer packageAnalyzer = null;
+	private Boolean spoonIsReady = false;
 
     @FXML
     void triggerCallGraph(ActionEvent event) {
@@ -123,13 +127,13 @@ public class MainFrameControler {
     @FXML
     void triggerDendro(ActionEvent event) {
     	System.out.println("triggerDendro");
-    	if(this.dendro != null) {
-
+    	if(this.packageAnalyzer != null) {
+    		GraphAnalyzer.buildDendogramme(this.packageAnalyzer);
     	}
-    	else
-    	{
-    		System.out.println("Veuillez choisir un dossier ou attendre que le projet est été analyser pour voir ce graphe");
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
     	}
+    	
     }
 
     @SuppressWarnings("restriction")
@@ -151,27 +155,28 @@ public class MainFrameControler {
 				// Spoon
 				SpoonAnalyze.checkAllProject(this.pathFolder);   			
 				this.spoonGraph = GraphAnalyzer.buildPonderalGraph(SpoonAnalyze.pairArray);
+				this.spoonIsReady = true;
 				
 				// AST
 				Analyzer analyzer = new Analyzer("./");
-				PackageAnalyzer project = analyzer.parseCallVisitors();	
+				this.packageAnalyzer = analyzer.parseCallVisitors();	
 				
-				q1.setText(String.valueOf(StatisticsAnalyzer.numberOfClasses(project)));
-				q2.setText(String.valueOf(StatisticsAnalyzer.numberOfLinesOfCode(project)));
-				q3.setText(String.valueOf(StatisticsAnalyzer.numberOfMethods(project)));
-				q4.setText(String.valueOf(StatisticsAnalyzer.numberOfPackages(project)));
-				q5.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfMethodsByClass(project)));
-				q6.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfLinesOfCodeByMethod(project)));
-				q7.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfFieldsByClass(project)));
-				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(project, 10)));
-				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(project, 10)));
-				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(project, 10)));
-				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(project, 3))+"avec X=3");
-				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(project, 10)));
-				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(project)));
+				q1.setText(String.valueOf(StatisticsAnalyzer.numberOfClasses(packageAnalyzer)));
+				q2.setText(String.valueOf(StatisticsAnalyzer.numberOfLinesOfCode(packageAnalyzer)));
+				q3.setText(String.valueOf(StatisticsAnalyzer.numberOfMethods(packageAnalyzer)));
+				q4.setText(String.valueOf(StatisticsAnalyzer.numberOfPackages(packageAnalyzer)));
+				q5.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfMethodsByClass(packageAnalyzer)));
+				q6.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfLinesOfCodeByMethod(packageAnalyzer)));
+				q7.setText(String.valueOf(StatisticsAnalyzer.averageNumberOfFieldsByClass(packageAnalyzer)));
+				q8.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethods(packageAnalyzer, 10)));
+				q9.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfFields(packageAnalyzer, 10)));
+				q10.setText(String.valueOf(StatisticsAnalyzer.biggestClassesByNumberOfMethodsAndByNumberOfFields(packageAnalyzer, 10)));
+				q11.setText(String.valueOf(StatisticsAnalyzer.classesWithMoreThenXMethods(packageAnalyzer, 3))+"avec X=3");
+				q12.setText(String.valueOf(StatisticsAnalyzer.biggestMethodesByNumberOfLinesOfCode(packageAnalyzer, 10)));
+				q13.setText(String.valueOf(StatisticsAnalyzer.maximumNumberOfParameters(packageAnalyzer)));
 				
-				this.callGraph = GraphAnalyzer.buildGeneralGraph(project);
-				this.couplingGraph = GraphAnalyzer.buildPonderalGraph(project);
+				this.callGraph = GraphAnalyzer.buildGeneralGraph(packageAnalyzer);
+				this.couplingGraph = GraphAnalyzer.buildPonderalGraph(packageAnalyzer);
 				//GraphAnalyzer.buildDendogramme(project);
 
     				
@@ -194,6 +199,17 @@ public class MainFrameControler {
     	else
     	{
     		System.out.println("Veuillez choisir un dossier ou attendre que le projet est été analyser pour voir ce graphe");
+    	}
+    }
+    
+    @FXML
+    void triggerSpoonDendro(ActionEvent event) {
+    	System.out.println("triggerSpoonDendro");
+    	if(this.spoonIsReady) {
+    		GraphAnalyzer.buildDendogramme(SpoonAnalyze.pairArray);
+    	}
+    	else {
+    		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
     	}
     }
 
