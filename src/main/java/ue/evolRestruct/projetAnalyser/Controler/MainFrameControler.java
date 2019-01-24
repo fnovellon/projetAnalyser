@@ -109,7 +109,7 @@ public class MainFrameControler {
 
     @FXML
     void triggerCallGraph(ActionEvent event) {
-    	System.out.println("triggerCallGraph");
+    	//System.out.println("triggerCallGraph");
     	if(this.callGraph != null) {
     		Viewer viewer = this.callGraph.display();
     	    viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
@@ -122,7 +122,7 @@ public class MainFrameControler {
 
     @FXML
     void triggerCoupling(ActionEvent event) {
-    	System.out.println("triggerCoupling");
+    	//System.out.println("triggerCoupling");
     	if(this.couplingGraph != null) {
     		Viewer viewer = this.couplingGraph.display();
     	    viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
@@ -135,7 +135,7 @@ public class MainFrameControler {
 
     @FXML
     void triggerDendro(ActionEvent event) {
-    	System.out.println("triggerDendro");
+    	//System.out.println("triggerDendro");
     	if(this.arrayDendro != null) {
     		for(JFrame windows : this.arrayDendro) {
     			windows.setVisible(true);
@@ -155,7 +155,7 @@ public class MainFrameControler {
     	File selectedDirectory = directoryChooser.showDialog(stage);
 
     	if(selectedDirectory == null){
-    	     //No Directory selected
+    	     System.err.println("Erreur lors du chargement du dossier");
     	}else{
     		try {
     			System.out.println(selectedDirectory.getAbsolutePath());
@@ -190,7 +190,6 @@ public class MainFrameControler {
 				DendroAnalyzer da = GraphAnalyzer.buildDendogramme(project);
 				this.arrayDendro = da.buildDendro();
 				this.arraySpoonDendro = GraphAnalyzer.buildDendogramme(SpoonAnalyze.pairArray).buildDendro();
-				//GraphAnalyzer.buildDendogramme(project);
 				this.arrayPartition = da.getClusters();
     				
     				
@@ -204,7 +203,7 @@ public class MainFrameControler {
 
     @FXML
     void triggerSpoonCoupling(ActionEvent event) {
-    	System.out.println("triggerSpoonCoupling");
+    	//System.out.println("triggerSpoonCoupling");
     	if(this.spoonGraph != null) {
     		Viewer viewer = this.spoonGraph.display();
     	    viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
@@ -217,7 +216,7 @@ public class MainFrameControler {
     
     @FXML
     void triggerSpoonDendro(ActionEvent event) {
-    	System.out.println("triggerSpoonDendro");
+    	//System.out.println("triggerSpoonDendro");
     	if(this.arraySpoonDendro != null) {
     		for(JFrame windows : this.arraySpoonDendro) {
     			windows.setVisible(true);
@@ -230,7 +229,7 @@ public class MainFrameControler {
     
     @FXML
     void triggerParittions(ActionEvent event) {
-    	System.out.println("triggerParittions");
+    	//System.out.println("triggerParittions");
     	if(this.arrayPartition != null) {
     		for(NodeCluster nc : this.arrayPartition) {
     			DendroAnalyzer.openDendro(nc).setVisible(true);
