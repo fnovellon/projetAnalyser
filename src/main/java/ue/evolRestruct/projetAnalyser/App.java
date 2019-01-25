@@ -1,13 +1,10 @@
 package ue.evolRestruct.projetAnalyser;
 
-import java.util.HashMap;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ue.evolRestruct.projetAnalyser.Controler.MainFrameControler;
 
 public class App extends Application{
 
@@ -15,7 +12,7 @@ public class App extends Application{
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		FXMLLoader loader =  new FXMLLoader(this.getClass().getResource("View/mainFrame.fxml"));
+		FXMLLoader loader =  new FXMLLoader(this.getClass().getResource("/mainFrame.fxml"));
 		Parent root = loader.load();
 		
 		this.primaryStage = stage;

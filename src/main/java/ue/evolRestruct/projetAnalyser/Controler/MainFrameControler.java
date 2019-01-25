@@ -11,7 +11,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.graphstream.graph.*;
+import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.view.Viewer;
 
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
@@ -19,8 +19,8 @@ import ue.evolRestruct.projetAnalyser.Model.Stats.Analyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.DendroAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Stats.DendroAnalyzer.NodeCluster;
+import ue.evolRestruct.projetAnalyser.spoon.spoonCode.SpoonAnalyze;
 import ue.evolRestruct.projetAnalyser.Model.Stats.StatisticsAnalyzer;
-import spoonCode.SpoonAnalyze;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,11 +98,11 @@ public class MainFrameControler {
     
     @FXML // fx:id="partitions"
     private Button partitions; // Value injected by FXMLLoader
-    
+
 	private String pathFolder = null;
-	private Graph spoonGraph = null;
-	private Graph callGraph = null;
-	private Graph couplingGraph = null;
+	private MultiGraph spoonGraph = null;
+	private MultiGraph callGraph = null;
+	private MultiGraph couplingGraph = null;
 	private ArrayList<JFrame> arrayDendro = null;
 	private ArrayList<NodeCluster> arrayPartition = null;
 	private ArrayList<JFrame> arraySpoonDendro = null;
@@ -239,6 +239,6 @@ public class MainFrameControler {
     		System.out.println("Veuillez attendre la fin du chargement pour utiliser cette fonctionnalité");
     	}
     }
-
+    
 }
 

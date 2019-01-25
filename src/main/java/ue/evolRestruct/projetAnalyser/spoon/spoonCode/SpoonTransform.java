@@ -1,4 +1,4 @@
-package spoonCode;
+package ue.evolRestruct.projetAnalyser.spoon.spoonCode;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -19,12 +19,14 @@ import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtFieldReference;
+import spoon.reflect.reference.CtTypeReference;
 
 public class SpoonTransform<T>{
 		
 	private CtClass<T> ctClass;
 	public Factory factory;
 	
+	@SuppressWarnings("unchecked")
 	public SpoonTransform(String classFilePath, String className){	
 		Launcher launcher = new Launcher();
 		launcher.addInputResource(classFilePath);
@@ -71,12 +73,15 @@ public class SpoonTransform<T>{
 		ctClass.addMethod(ctMethod);
 	}
 	
-	private void modifyConstructor(String nom, Class<?> fieldClass){		
+	
+	@SuppressWarnings("unchecked")
+	private void modifyConstructor(String nom, Class<?> fieldClass){
+		
 		CtConstructor<T> constructor = (CtConstructor<T>) ctClass.getConstructors().toArray()[0];
-		CtParameter param = factory.Core().createParameter();
+		CtParameter<Object> param = factory.Core().createParameter();
 		CtBlock<?> ctBlock = constructor.getBody();
 
-		param.setType(factory.Type().createReference(fieldClass));
+		param.setType((CtTypeReference<Object>) factory.Type().createReference(fieldClass));
 		param.setSimpleName(nom);
 		fieldClass.getTypeName();
 		constructor.addParameter(param);

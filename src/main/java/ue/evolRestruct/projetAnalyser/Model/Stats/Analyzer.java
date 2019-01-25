@@ -14,8 +14,6 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
-import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ElementAnalyzer;
-import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.PackageDeclarationVisitor;
 import ue.evolRestruct.projetAnalyser.Model.Visitor.TypeDeclarationVisitor;
@@ -125,13 +123,13 @@ public class Analyzer {
 	}
 
 	private CompilationUnit parse(char[] classSource) {
-		ASTParser parser = ASTParser.newParser(AST.JLS4); // java +1.6
+		ASTParser parser = ASTParser.newParser(AST.JLS11); // java +1.6
 		parser.setResolveBindings(true);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
 		parser.setBindingsRecovery(true);
 
-		Map options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		parser.setCompilerOptions(options);
 
 		parser.setUnitName("");

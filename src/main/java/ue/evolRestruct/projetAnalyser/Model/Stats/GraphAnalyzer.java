@@ -3,29 +3,19 @@ package ue.evolRestruct.projetAnalyser.Model.Stats;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import javax.swing.JFrame;
-
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.graphstream.graph.*;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.view.Viewer;
-
-import ue.evolRestruct.projetAnalyser.Model.DendroPackage.DendroPaint;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.ClassAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.MethodInvocationAnalyzer;
 import ue.evolRestruct.projetAnalyser.Model.ElementAnalyzer.PackageAnalyzer;
-import ue.evolRestruct.projetAnalyser.Model.Stats.GraphAnalyzer.GraphPair;
 
 public class GraphAnalyzer {
 
@@ -79,18 +69,18 @@ public class GraphAnalyzer {
 		return className;
 	}
 	
-	private static Graph createEmptyGraph() {
-		System.setProperty("org.graphstream.ui.renderer",
-		        "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		Graph graph = new MultiGraph("CalledMethodsGraph");
+	private static MultiGraph createEmptyGraph() {
+		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		
+		MultiGraph graph = new MultiGraph("CalledMethodsGraph");
         graph.addAttribute("ui.stylesheet", style);
         graph.setAutoCreate(true);
         graph.setStrict(false);
         return graph;
 	}
 	
-	public static Graph buildGeneralGraph(PackageAnalyzer packageAnalyzer) {
-		Graph graph = createEmptyGraph();
+	public static MultiGraph buildGeneralGraph(PackageAnalyzer packageAnalyzer) {
+		MultiGraph graph = createEmptyGraph();
         
         ArrayList<ClassAnalyzer> listOfClasses = StatisticsAnalyzer.getAllClasses(packageAnalyzer);
         for(MethodInvocationAnalyzer methodInvocationAnalyzer : StatisticsAnalyzer.getAllMethodInvocation(packageAnalyzer)) {
@@ -144,8 +134,8 @@ public class GraphAnalyzer {
 		return className;
 	}
 	
-	public static Graph buildPonderalGraph(PairArray pairArray) {
-		Graph graph = createEmptyGraph();
+	public static MultiGraph buildPonderalGraph(PairArray pairArray) {
+		MultiGraph graph = createEmptyGraph();
 		double sum = 0;
 		for (GraphPair pair : pairArray.getArray()) {
 			sum += pair.getValue();
@@ -171,7 +161,7 @@ public class GraphAnalyzer {
 		return graph;
 	}
 	
-	public static Graph buildPonderalGraph(PackageAnalyzer packageAnalyzer) {
+	public static MultiGraph buildPonderalGraph(PackageAnalyzer packageAnalyzer) {
 		return buildPonderalGraph(createPairArray(packageAnalyzer));
 	}
 	
@@ -200,7 +190,7 @@ public class GraphAnalyzer {
 	}
 	
 	public static DendroAnalyzer buildDendogramme(PairArray pairArray) {
-		Graph graph = buildPonderalGraph(pairArray);	
+		MultiGraph graph = buildPonderalGraph(pairArray);	
 		DendroAnalyzer dendro = new DendroAnalyzer();
 		Set<String> set = pairArray.getSetOfNodeString();
 		Iterator<String> iterator = set.iterator();
